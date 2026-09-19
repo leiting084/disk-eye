@@ -9,9 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/
 
 ### Added
 - **Architecture documentation**: New `docs/architecture.md` describing the process model, component responsibilities, data flow, storage schema, and degradation strategy
+- **Line ending rules**: New `.gitattributes` normalizing on LF with CRLF preserved for `.bat` and `.sln`
 
 ### Removed
 - **Repository cleanup**: Removed AI tool artifacts (`.claude/`, `.spec-workflow/`), agent-oriented docs (`HANDOFF.md`, `docs/CLAUDE.md`), debug screenshots and UI probe scripts (`experiments/*.png`, `experiments/*.ps1`), test fixtures (`_diskeye_e2e/*.bin`) and legacy kill scripts from version control. All files are preserved locally; the paths are now in `.gitignore`. The kill scripts were removed because `taskkill /IM DiskEye.exe` also kills the `--etw-child` process.
+- **Debug tooling**: Removed `src/KillDiskEye` (V7.5-era tool that killed every `DiskEye.exe` by name, including the `--etw-child` process; never referenced by the solution) and `experiments/` (ETW probe and A/B experiment tooling). Both remain in the local working tree.
 
 ### Fixed
 - **Broken release links**: Replace placeholder `yourusername` with `leiting084` in all CHANGELOG version links
