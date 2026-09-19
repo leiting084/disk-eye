@@ -52,3 +52,7 @@ config.json
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# Kill tool directories (large binary files)
+kill_tool*/
+_diskeye_e2e/
