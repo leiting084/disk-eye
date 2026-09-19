@@ -56,3 +56,9 @@ Desktop.ini
 # Kill tool directories (large binary files)
 kill_tool*/
 _diskeye_e2e/
+
+# Release artifacts — distributed via GitHub Releases, never committed
+*.zip
+
+# AI assistant working directory (project-local notes/memory)
+.workbuddy/

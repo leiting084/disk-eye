@@ -24,11 +24,16 @@ Real-time disk I/O monitoring tool for Windows with precise process-level attrib
 - **Data Management**: SQLite storage with WAL mode, auto-archiving (>30 days), CSV export
 - **Performance Optimized**: Fast startup (<2s), JIT pre-warming, efficient drive enumeration
 
+<!-- TODO(screenshots): docs/screenshots/ 下暂无图片，恢复本节前需先补齐以下三个文件：
+     docs/screenshots/main-window.png
+     docs/screenshots/settings.png
+     docs/screenshots/tray-menu.png
 ## Screenshots
 
 ![Main Window](docs/screenshots/main-window.png)
 ![Settings](docs/screenshots/settings.png)
 ![Tray Menu](docs/screenshots/tray-menu.png)
+-->
 
 ## Download
 
@@ -86,7 +91,7 @@ ETW Events → EventAggregator → AttributionEngine → EventStore → UI Refre
                               Process Resolution
 ```
 
-See [docs/architecture.md](docs/architecture.md) for detailed technical documentation.
+See [docs/architecture.md](docs/architecture.md) (Chinese) for detailed technical documentation.
 
 ## Configuration
 

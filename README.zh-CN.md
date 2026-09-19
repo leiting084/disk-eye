@@ -24,11 +24,16 @@
 - **数据管理**：SQLite 存储（WAL 模式）、自动归档（>30天）、CSV 导出
 - **性能优化**：快速启动（<2秒）、JIT 预热、高效盘符枚举
 
+<!-- TODO(screenshots): docs/screenshots/ 下暂无图片，恢复本节前需先补齐以下三个文件：
+     docs/screenshots/main-window.png
+     docs/screenshots/settings.png
+     docs/screenshots/tray-menu.png
 ## 截图
 
 ![主窗口](docs/screenshots/main-window.png)
 ![设置](docs/screenshots/settings.png)
 ![托盘菜单](docs/screenshots/tray-menu.png)
+-->
 
 ## 下载
 

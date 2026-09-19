@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Architecture documentation**: New `docs/architecture.md` describing the process model, component responsibilities, data flow, storage schema, and degradation strategy
+
+### Fixed
+- **Broken release links**: Replace placeholder `yourusername` with `leiting084` in all CHANGELOG version links
+- **Wrong test command**: Fix test project path in CONTRIBUTING.md (`src/DiskEye.Tests` → `tests/DiskEye.Tests`)
+- **Dead architecture link**: README previously pointed to a non-existent `docs/architecture.md`
+- **Missing screenshots**: Comment out the README screenshots section until `docs/screenshots/*.png` are available
+
 ## [0.9.15] - 2026-09-19
 
 ### Added
@@ -140,19 +151,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/
 - Single instance with NamedPipe wake-up
 - Administrator privileges for ETW access
 
-[0.9.15]: https://github.com/yourusername/disk-eye/releases/tag/v0.9.15
-[0.9.14]: https://github.com/yourusername/disk-eye/releases/tag/v0.9.14
-[0.9.13]: https://github.com/yourusername/disk-eye/releases/tag/v0.9.13
-[0.9.12]: https://github.com/yourusername/disk-eye/releases/tag/v0.9.12
-[0.9.11]: https://github.com/yourusername/disk-eye/releases/tag/v0.9.11
-[0.9.10]: https://github.com/yourusername/disk-eye/releases/tag/v0.9.10
-[0.9.9]: https://github.com/yourusername/disk-eye/releases/tag/v0.9.9
-[0.9.8]: https://github.com/yourusername/disk-eye/releases/tag/v0.9.8
-[0.9.7]: https://github.com/yourusername/disk-eye/releases/tag/v0.9.7
-[0.9.6]: https://github.com/yourusername/disk-eye/releases/tag/v0.9.6
-[0.9.5]: https://github.com/yourusername/disk-eye/releases/tag/v0.9.5
-[0.9.4]: https://github.com/yourusername/disk-eye/releases/tag/v0.9.4
-[0.9.3]: https://github.com/yourusername/disk-eye/releases/tag/v0.9.3
-[0.9.2]: https://github.com/yourusername/disk-eye/releases/tag/v0.9.2
-[0.9.1]: https://github.com/yourusername/disk-eye/releases/tag/v0.9.1
-[0.9.0]: https://github.com/yourusername/disk-eye/releases/tag/v0.9.0
+[0.9.15]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.15
+[0.9.14]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.14
+[0.9.13]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.13
+[0.9.12]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.12
+[0.9.11]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.11
+[0.9.10]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.10
+[0.9.9]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.9
+[0.9.8]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.8
+[0.9.7]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.7
+[0.9.6]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.6
+[0.9.5]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.5
+[0.9.4]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.4
+[0.9.3]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.3
+[0.9.2]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.2
+[0.9.1]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.1
+[0.9.0]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.0

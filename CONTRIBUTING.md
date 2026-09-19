@@ -104,7 +104,7 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 ### Running Tests
 
 ```bash
-dotnet test src/DiskEye.Tests/DiskEye.Tests.csproj
+dotnet test tests/DiskEye.Tests/DiskEye.Tests.csproj
 ```
 
 ### Writing Tests
@@ -127,6 +127,10 @@ dotnet test src/DiskEye.Tests/DiskEye.Tests.csproj
 - Update README.md for user-facing changes
 - Add screenshots for UI changes
 - Update the user guide for new features
+
+> **TODO**: README 的 Screenshots 段落当前已注释掉（见 `README.md` / `README.zh-CN.md`）。
+> 需要补 3 张截图到 `docs/screenshots/`：`main-window.png`、`settings.png`、`tray-menu.png`，
+> 补齐后取消注释即可恢复展示。
 
 ## Commit Messages
 
