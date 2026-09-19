@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/
 ### Added
 - **Architecture documentation**: New `docs/architecture.md` describing the process model, component responsibilities, data flow, storage schema, and degradation strategy
 
+### Removed
+- **Repository cleanup**: Removed AI tool artifacts (`.claude/`, `.spec-workflow/`), agent-oriented docs (`HANDOFF.md`, `docs/CLAUDE.md`), debug screenshots and UI probe scripts (`experiments/*.png`, `experiments/*.ps1`), test fixtures (`_diskeye_e2e/*.bin`) and legacy kill scripts from version control. All files are preserved locally; the paths are now in `.gitignore`. The kill scripts were removed because `taskkill /IM DiskEye.exe` also kills the `--etw-child` process.
+
 ### Fixed
 - **Broken release links**: Replace placeholder `yourusername` with `leiting084` in all CHANGELOG version links
 - **Wrong test command**: Fix test project path in CONTRIBUTING.md (`src/DiskEye.Tests` → `tests/DiskEye.Tests`)

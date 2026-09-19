@@ -62,3 +62,19 @@ _diskeye_e2e/
 
 # AI assistant working directory (project-local notes/memory)
 .workbuddy/
+
+# AI tool artifacts — kept locally, not published to GitHub
+.claude/
+.spec-workflow/
+
+# Agent handoff docs — kept locally, not published
+HANDOFF.md
+docs/CLAUDE.md
+
+# Debug artifacts (screenshots and UI probe scripts)
+experiments/*.png
+experiments/*.ps1
+
+# Legacy debug scripts — unsafe: taskkill /IM also kills the ETW child process
+kill_diskeye.bat
+kill_old_processes.bat
