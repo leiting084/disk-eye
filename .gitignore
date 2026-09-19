@@ -75,6 +75,14 @@ docs/CLAUDE.md
 experiments/*.png
 experiments/*.ps1
 
+# Development-only tooling — kept locally, not published to GitHub.
+# etw-probe: ETW payload probe used before changing the parser.
+# e2e-attribution: A/B experiment harness for the attribution engine.
+experiments/
+
+# Legacy debug kill tool — unsafe: kills every DiskEye.exe including --etw-child
+src/KillDiskEye/
+
 # Legacy debug scripts — unsafe: taskkill /IM also kills the ETW child process
 kill_diskeye.bat
 kill_old_processes.bat
