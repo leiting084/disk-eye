@@ -1,0 +1,54 @@
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+publish*/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# User-specific files
+*.rsuser
+launchSettings.json
+
+# Build logs
+*.log
+startup.log
+etw_child.log
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
+
+# Config files (user-specific)
+config.json
+
+# NuGet
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini

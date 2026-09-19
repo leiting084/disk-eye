@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <!-- V0.9.12: 应用自身按 100% DPI 渲染（用户要求，位图拉伸可接受）——彻底摆脱缩放裁字 -->
+    <!-- V0.9.13: PerMonitorV2 每屏原生渲染（文字锐利不模糊）；配合全局 8.25pt 字体=精致观感 -->
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>DiskEye</AssemblyName>
+    <RootNamespace>DiskEye</RootNamespace>
+    <Product>DiskEye</Product>
+    <!-- V0.9.15: 嵌入 exe 图标（资源管理器/任务栏显示自定义眼睛图标） -->
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <Version>0.9.15</Version>
+    <FileVersion>0.9.15.0</FileVersion>
+    <AssemblyVersion>0.9.15.0</AssemblyVersion>
+    <!-- V7.1: ETW P/Invoke 需要 unsafe 上下文 -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+    <!-- V0.9.15: 绿色便携发布配置（多文件自包含，整个文件夹拷走即用，不往系统写任何东西） -->
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- V0.9.14: 双语字典改为编译期 C# 常量（Forms/Strings.cs）——内嵌 JSON 资源名问题已废弃 -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.10" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
+    <!-- V0.8.1: ETW 子进程模式用官方 TraceEvent 库消费 Kernel-File -->
+    <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.1.16" />
+  </ItemGroup>
+
+  <!-- V0.9: 单元测试访问 internal 的 Etw/Monitoring 纯逻辑 -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="DiskEye.Tests" />
+  </ItemGroup>
+
+</Project>
