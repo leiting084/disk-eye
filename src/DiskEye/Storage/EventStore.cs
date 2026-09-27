@@ -10,12 +10,20 @@ namespace DiskEye.Storage;
 public sealed class EventStore : IDisposable
 {
     private readonly string _connStr;
+    private readonly string _dbPath;
     private readonly object _writeLock = new();
     private SqliteConnection? _writeConn;
 
-    public EventStore(string dbPath)
+    public EventStore(string dbPath) : this(dbPath, scheduleStartupRepair: true) { }
+
+    /// <param name="scheduleStartupRepair">
+    /// 是否在构造后异步跑一次历史乱码自愈。测试传 false —— 否则后台任务会和测试自己插入的
+    /// 脏数据抢跑，把 user_version 先标记掉，测试就再也触发不了修复路径。
+    /// </param>
+    internal EventStore(string dbPath, bool scheduleStartupRepair)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
+        _dbPath = dbPath;
         _connStr = new SqliteConnectionStringBuilder
         {
             DataSource = dbPath,
@@ -24,11 +32,11 @@ public sealed class EventStore : IDisposable
             Pooling = true,
         }.ToString();
 
-        InitSchema();
+        InitSchema(scheduleStartupRepair);
     }
 
     /// <summary>建表 + 索引。首次运行调用。</summary>
-    private void InitSchema()
+    private void InitSchema(bool scheduleStartupRepair)
     {
         using var conn = Open();
         using var cmd = conn.CreateCommand();
@@ -147,6 +155,143 @@ public sealed class EventStore : IDisposable
             alterSource.ExecuteNonQuery();
         }
         catch { /* 列已存在 */ }
+
+        // V0.9.17: 还原 V0.9.15 及更早留下的乱码历史数据（详见 MojibakeRepair）
+        if (scheduleStartupRepair) Task.Run(() => RepairLegacyMojibake());
+    }
+
+    /// <summary>自愈要扫的表和列。events_archive 也扫——归档里的乱码一样会被查询命中。</summary>
+    private static readonly (string Table, string[] Cols)[] MojibakeTargets =
+    {
+        ("events", new[] { "path", "folder", "process_name", "process_path" }),
+        ("write_bytes", new[] { "path", "folder", "process_name", "process_path" }),
+        ("events_archive", new[] { "path", "folder", "process_name", "process_path" }),
+    };
+
+    /// <summary>user_version 达到这个值就说明自愈已经跑过，不再重复扫。</summary>
+    private const int MojibakeMigrationVersion = 1;
+
+    /// <summary>
+    /// V0.9.17: 一次性还原历史乱码（背景见 <see cref="MojibakeRepair"/>）。
+    ///
+    /// 幂等靠 PRAGMA user_version 打标，跑过就不再扫。改动前把原值写成一份可回滚的 SQL
+    /// 文件放到库旁边 —— 升级出问题用户能自己回退，比"相信我们没改错"靠谱。
+    /// 返回修复的字段数（0 = 没跑或无需修复）。
+    /// </summary>
+    internal int RepairLegacyMojibake()
+    {
+        int changedFields = 0;
+        try
+        {
+            if (MojibakeRepair.CodePages.Length == 0)
+            {
+                Program.Log("[Mojibake] 系统码表不可用，本次跳过自愈（不标记，下次启动再试）");
+                return 0;
+            }
+
+            lock (_writeLock)
+            {
+                using var conn = GetWriteConn();
+
+                using (var vc = conn.CreateCommand())
+                {
+                    vc.CommandText = "PRAGMA user_version;";
+                    var raw = vc.ExecuteScalar();
+                    long version = raw == null || raw == DBNull.Value ? 0 : Convert.ToInt64(raw);
+                    if (version >= MojibakeMigrationVersion) return 0;
+                }
+
+                var rollback = new System.Text.StringBuilder();
+                rollback.AppendLine("-- DiskEye V0.9.17 乱码历史数据自愈 — 回滚脚本");
+                rollback.AppendLine($"-- 生成时间 {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                rollback.AppendLine("-- 用法：sqlite3 events.db < 本文件");
+                int changedRows = 0;
+
+                foreach (var (table, cols) in MojibakeTargets)
+                {
+                    // 先把待改的行读出来再写 —— 同一个连接上一边开游标一边 UPDATE 会打架
+                    var pending = new List<(long Rowid, string Col, string Old, string New)>();
+                    foreach (var col in cols)
+                    {
+                        using var sel = conn.CreateCommand();
+                        sel.CommandText = $"SELECT rowid, \"{col}\" FROM \"{table}\"";
+                        using var rdr = sel.ExecuteReader();
+                        while (rdr.Read())
+                        {
+                            string oldValue;
+                            try { oldValue = rdr.GetString(1); }
+                            catch { continue; }   // 非文本/坏编码 → 不动它
+                            var fixedValue = MojibakeRepair.TryRepair(oldValue);
+                            if (fixedValue != null) pending.Add((rdr.GetInt64(0), col, oldValue, fixedValue));
+                        }
+                    }
+                    if (pending.Count == 0) continue;
+
+                    using (var tx = conn.BeginTransaction())
+                    {
+                        foreach (var group in pending.GroupBy(p => p.Col))
+                        {
+                            using var upd = conn.CreateCommand();
+                            upd.Transaction = tx;
+                            upd.CommandText = $"UPDATE \"{table}\" SET \"{group.Key}\" = $v WHERE rowid = $id";
+                            var pv = upd.CreateParameter(); pv.ParameterName = "$v"; upd.Parameters.Add(pv);
+                            var pi = upd.CreateParameter(); pi.ParameterName = "$id"; upd.Parameters.Add(pi);
+                            foreach (var item in group)
+                            {
+                                pv.Value = item.New;
+                                pi.Value = item.Rowid;
+                                upd.ExecuteNonQuery();
+                                changedFields++;
+                            }
+                        }
+                        tx.Commit();
+                    }
+
+                    changedRows += pending.Select(p => p.Rowid).Distinct().Count();
+                    foreach (var item in pending)
+                    {
+                        rollback.AppendLine(
+                            $"UPDATE \"{table}\" SET \"{item.Col}\" = '{item.Old.Replace("'", "''")}' WHERE rowid = {item.Rowid};");
+                    }
+                }
+
+                if (changedFields > 0)
+                {
+                    WriteRollbackFile(rollback.ToString());
+                    Program.Log($"[Mojibake] 自愈完成：还原 {changedRows} 行 / {changedFields} 个字段（回滚脚本已放在库旁边）");
+                }
+                else
+                {
+                    Program.Log("[Mojibake] 自愈扫描完成：未发现历史乱码");
+                }
+
+                using (var mark = conn.CreateCommand())
+                {
+                    mark.CommandText = $"PRAGMA user_version = {MojibakeMigrationVersion};";
+                    mark.ExecuteNonQuery();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Program.Log($"[Mojibake] 自愈失败（不影响正常使用）: {ex.Message}");
+        }
+        return changedFields;
+    }
+
+    private void WriteRollbackFile(string content)
+    {
+        try
+        {
+            var dir = Path.GetDirectoryName(_dbPath);
+            if (string.IsNullOrEmpty(dir)) return;
+            var path = Path.Combine(dir, $"mojibake-rollback-{DateTime.Now:yyyyMMdd-HHmmss}.sql");
+            File.WriteAllText(path, content, new System.Text.UTF8Encoding(false));
+        }
+        catch (Exception ex)
+        {
+            Program.Log($"[Mojibake] 回滚脚本写入失败: {ex.Message}");
+        }
     }
 
     /// <summary>回填旧事件的 folder 字段。幂等（WHERE folder = '' 跳过已回填的）。</summary>

@@ -16,9 +16,10 @@
     <!-- V0.9.15: 嵌入 exe 图标（资源管理器/任务栏显示自定义眼睛图标） -->
     <ApplicationIcon>app.ico</ApplicationIcon>
     <!-- V0.9.16: 修复主从管道编码不一致导致的中文路径乱码 -->
-    <Version>0.9.16</Version>
-    <FileVersion>0.9.16.0</FileVersion>
-    <AssemblyVersion>0.9.16.0</AssemblyVersion>
+    <!-- V0.9.17: 启动时自愈还原 V0.9.15 及更早落库的乱码历史数据 -->
+    <Version>0.9.17</Version>
+    <FileVersion>0.9.17.0</FileVersion>
+    <AssemblyVersion>0.9.17.0</AssemblyVersion>
     <!-- V7.1: ETW P/Invoke 需要 unsafe 上下文 -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
@@ -38,6 +39,7 @@
     <PackageReference Include="System.Management" Version="8.0.0" />
     <!-- V0.8.1: ETW 子进程模式用官方 TraceEvent 库消费 Kernel-File -->
     <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.1.16" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
   </ItemGroup>
 
   <!-- V0.9: 单元测试访问 internal 的 Etw/Monitoring 纯逻辑 -->

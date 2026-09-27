@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/
 
 ## [Unreleased]
 
+## [0.9.17] - 2026-09-28
+
+### Added
+- **Self-healing migration for legacy garbled paths**: Versions up to 0.9.15 stored non-ASCII paths already decoded as GBK (`D:\tools\0.mytools\DiskEye 磁盘监控` saved and displayed as `…DiskEye 纾佺洏鐩戞帶`). Fixing the writer in 0.9.16 stops new corruption but leaves the existing rows wrong, so the app now scans `events`, `write_bytes` and `events_archive` once at startup and restores them. The scan is idempotent (guarded by `PRAGMA user_version`), skips anything it cannot restore losslessly, and writes every changed value to a `mojibake-rollback-<timestamp>.sql` file next to the database so the change can be undone.
+
+### Fixed
+- **Rows containing GBK private-use characters were unrecoverable by the previous one-off repair script**: Restoring such a row requires encoding it back with **CP936** — the very code page that corrupted it. Codecs using the Unicode-official GBK mapping (Python's `gbk`, and .NET's GB18030) either reject or diverge on those code points, which is why earlier repair passes skipped those rows entirely. Both encoders now run with `EncoderFallback.ExceptionFallback`: .NET's default fallback silently substitutes `?`, which would turn repairable mojibake into permanent data loss.
+
 ## [0.9.16] - 2026-09-28
 
 ### Added
@@ -159,6 +167,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/
 - Single instance with NamedPipe wake-up
 - Administrator privileges for ETW access
 
+[0.9.17]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.17
 [0.9.16]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.16
 [0.9.15]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.15
 [0.9.14]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.14
