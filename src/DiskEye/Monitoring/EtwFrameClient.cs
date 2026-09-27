@@ -55,6 +55,22 @@ public sealed class EtwFrameClient : IDisposable
         System.Diagnostics.Debug.WriteLine($"[EtwFrame] {msg}");
     }
 
+    /// <summary>
+    /// 子进程启动参数。StandardOutputEncoding 必须显式指定为写端同编码：
+    /// 子进程 stdout 是 UTF-8，但不指定时 .NET 用 Console.OutputEncoding（中文系统 CP936），
+    /// 中文路径会被解成乱码（V0.9.16 修复）。internal 供测试断言。
+    /// </summary>
+    internal static System.Diagnostics.ProcessStartInfo CreateChildStartInfo(string exePath, int parentPid)
+        => new()
+        {
+            FileName = exePath,
+            Arguments = $"--etw-child {parentPid}",
+            RedirectStandardOutput = true,
+            StandardOutputEncoding = FrameProtocol.StreamEncoding,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+
     public void Start()
     {
         if (_disposed) return;
@@ -66,14 +82,7 @@ public sealed class EtwFrameClient : IDisposable
         }
         try
         {
-            var psi = new System.Diagnostics.ProcessStartInfo
-            {
-                FileName = exePath,
-                Arguments = $"--etw-child {Environment.ProcessId}",
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-            };
+            var psi = CreateChildStartInfo(exePath, Environment.ProcessId);
             _child = System.Diagnostics.Process.Start(psi);
             if (_child == null) { Log("Process.Start 返回 null，保持降级"); return; }
             _lastSignOfLifeTicks = DateTime.UtcNow.Ticks;

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/
 
 ## [Unreleased]
 
+## [0.9.16] - 2026-09-28
+
 ### Added
 - **Architecture documentation**: New `docs/architecture.md` describing the process model, component responsibilities, data flow, storage schema, and degradation strategy
 - **Line ending rules**: New `.gitattributes` normalizing on LF with CRLF preserved for `.bat` and `.sln`
@@ -16,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/
 - **Debug tooling**: Removed `src/KillDiskEye` (V7.5-era tool that killed every `DiskEye.exe` by name, including the `--etw-child` process; never referenced by the solution) and `experiments/` (ETW probe and A/B experiment tooling). Both remain in the local working tree.
 
 ### Fixed
+- **Non-ASCII paths garbled in ETW-sourced rows**: The `--etw-child` process writes its stdout frames as UTF-8, but the main process never set `ProcessStartInfo.StandardOutputEncoding`, so .NET fell back to `Console.OutputEncoding` — CP936 (GBK) on a Chinese system. Every non-ASCII path crossing the pipe was decoded as GBK: `D:\tools\0.mytools\DiskEye 磁盘监控\events.db` was stored and shown as `D:\tools\0.mytools\DiskEye 纾佺洏鐩戞帶\events.db`. Both ends now share `FrameProtocol.StreamEncoding` (UTF-8, no BOM), and a regression test pins the child's `ProcessStartInfo` to it. Only rows coming from the ETW child (`write_bytes`, `NM` name frames) were affected; rows produced by the main process's own file watcher were always correct, which is why the corruption looked table-dependent.
 - **Broken release links**: Replace placeholder `yourusername` with `leiting084` in all CHANGELOG version links
 - **Wrong test command**: Fix test project path in CONTRIBUTING.md (`src/DiskEye.Tests` → `tests/DiskEye.Tests`)
 - **Dead architecture link**: README previously pointed to a non-existent `docs/architecture.md`
@@ -156,6 +159,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/
 - Single instance with NamedPipe wake-up
 - Administrator privileges for ETW access
 
+[0.9.16]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.16
 [0.9.15]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.15
 [0.9.14]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.14
 [0.9.13]: https://github.com/leiting084/disk-eye/releases/tag/v0.9.13

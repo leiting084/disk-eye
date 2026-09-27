@@ -15,9 +15,10 @@
     <Product>DiskEye</Product>
     <!-- V0.9.15: 嵌入 exe 图标（资源管理器/任务栏显示自定义眼睛图标） -->
     <ApplicationIcon>app.ico</ApplicationIcon>
-    <Version>0.9.15</Version>
-    <FileVersion>0.9.15.0</FileVersion>
-    <AssemblyVersion>0.9.15.0</AssemblyVersion>
+    <!-- V0.9.16: 修复主从管道编码不一致导致的中文路径乱码 -->
+    <Version>0.9.16</Version>
+    <FileVersion>0.9.16.0</FileVersion>
+    <AssemblyVersion>0.9.16.0</AssemblyVersion>
     <!-- V7.1: ETW P/Invoke 需要 unsafe 上下文 -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 

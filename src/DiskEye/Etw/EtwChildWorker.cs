@@ -42,7 +42,8 @@ internal static class EtwChildWorker
     /// <summary>子进程模式入口。返回进程退出码。</summary>
     public static int Run(int parentPid)
     {
-        var stdout = new StreamWriter(Console.OpenStandardOutput(), new UTF8Encoding(false)) { AutoFlush = false };
+        // 编码必须与主进程 EtwFrameClient 的 StandardOutputEncoding 一致（FrameProtocol.StreamEncoding）
+        var stdout = new StreamWriter(Console.OpenStandardOutput(), FrameProtocol.StreamEncoding) { AutoFlush = false };
         _writer = new BoundedFrameWriter(stdout);
         _table = new HandleStateTable();
         _names = new PidNameResolver((pid, name, exe) => _writer.Enqueue(FrameProtocol.Name(pid, name, exe)));
