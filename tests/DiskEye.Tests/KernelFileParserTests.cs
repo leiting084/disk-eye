@@ -42,7 +42,7 @@ public class KernelFileParserTests
         var ok = KernelFileParser.TryGetCreate(CapturedPayloads.Bytes(CapturedPayloads.CreateFileHex), DeviceMap, out var info);
         Assert.True(ok);
         Assert.False(info.IsDirectory);
-        Assert.Equal(@"C:\Users\Dao\AppData\Local\Temp\etwprobe_io2\w0.bin", info.DosPath);
+        Assert.Equal(@"C:\Users\dev\AppData\Local\Temp\etwprobe_io2\w0.bin", info.DosPath);
         Assert.NotEqual(0UL, info.FileObject);
     }
 
@@ -52,7 +52,7 @@ public class KernelFileParserTests
         var ok = KernelFileParser.TryGetCreate(CapturedPayloads.Bytes(CapturedPayloads.CreateDirHex), DeviceMap, out var info);
         Assert.True(ok);
         Assert.True(info.IsDirectory);
-        Assert.Equal(@"C:\Users\Dao\AppData\Local\Temp\etwprobe_io2\", info.DosPath);
+        Assert.Equal(@"C:\Users\dev\AppData\Local\Temp\etwprobe_io2\", info.DosPath);
     }
 
     [Fact]
