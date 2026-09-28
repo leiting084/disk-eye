@@ -39,11 +39,11 @@ public class MojibakeMigrationTests : IDisposable
         return loose.GetString(new UTF8Encoding(false, true).GetBytes(text));
     }
 
-    private const string GoodPath = "D:\\tools\\0.mytools\\DiskEye 磁盘监控\\etw_child.log";
-    private const string GoodFolder = "D:\\tools\\0.mytools\\DiskEye 磁盘监控\\";
-    private const string GoodExe = "D:\\tools\\0.mytools\\DiskEye 磁盘监控\\DiskEye.exe";
-    private const string HealthyChinesePath = "D:\\个人桌面\\桌面\\当前工作\\2025-9-20.txt";
-    private const string HealthyChineseFolder = "D:\\个人桌面\\桌面\\当前工作\\";
+    private const string GoodPath = "D:\\Tools\\DiskEye 磁盘监控\\etw_child.log";
+    private const string GoodFolder = "D:\\Tools\\DiskEye 磁盘监控\\";
+    private const string GoodExe = "D:\\Tools\\DiskEye 磁盘监控\\DiskEye.exe";
+    private const string HealthyChinesePath = "D:\\文档\\工作日志\\2025-09-20.txt";
+    private const string HealthyChineseFolder = "D:\\文档\\工作日志\\";
     private const string AsciiPath = "D:\\application\\apache\\logs\\access.log";
 
     [Fact]

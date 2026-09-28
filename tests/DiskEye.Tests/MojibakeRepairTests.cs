@@ -8,11 +8,18 @@ namespace DiskEye.Tests;
 /// <summary>
 /// V0.9.17 历史乱码自愈的回归测试。
 ///
-/// 样本全部取自真实 events.db，不是编造的 —— 尤其是含私用区字符（U+E043）的那条：
-/// 它是上一轮修复脚本漏掉的那批的代表，也是"必须用 GB18030 而非 GBK"的直接证据。
+/// 样本一律由 CP936 现场 round-trip 生成（见 <see cref="Corrupt"/>），不手写、不用别的码表推算；
+/// 唯一硬编码的乱码串是含私用区字符那条，形态取自真实库，路径已脱敏。
 /// </summary>
 public class MojibakeRepairTests
 {
+    /// <summary>把正常文本"污染"成当年落库的形态：UTF-8 字节被宽松 CP936 解码。</summary>
+    private static string Corrupt(string text)
+    {
+        var loose = Encoding.GetEncoding(936);   // 宽松 = 与当年 Console.OutputEncoding 的行为一致
+        return loose.GetString(new UTF8Encoding(false, true).GetBytes(text));
+    }
+
     [Fact]
     public void SystemCodePageTables_AreAvailable_OnThisMachine()
     {
@@ -23,7 +30,7 @@ public class MojibakeRepairTests
     /// <summary>
     /// 回归钉子：全部用 CP936 本身构造样本，绝不手工/用别的码表推算乱码串。
     ///
-    /// 踩过的坑：先按 Python 的 `gbk` 表推算出 `鏅鸿兘寰呬姟娓呭崟`，再断言能还原成
+    /// 踩过的坑：先按 Python 的 `gbk` 表推算出 `鏅鸿兘寰呭姙娓呭崟`，再断言能还原成
     /// `智能待办清单` —— 测试红了。因为 Python 的 gbk 用的是 Unicode 官方映射表，与 .NET 的
     /// CP936 表在个别码位（如 `呬`/`姟`）上并不一致，推出来的串根本不是 .NET 会产出的形态。
     /// 污染源既然是 CP936 的解码器，就得用 CP936 的编码器做逆运算，样本也只能由它生成。
@@ -38,28 +45,32 @@ public class MojibakeRepairTests
         {
             "智能待办清单.exe",
             "DiskEye 磁盘监控",
-            "D:\\个人桌面\\桌面\\当前工作\\2025-9-20.txt",
-            "D:\\tools\\0.mytools\\DiskEye 磁盘监控\\etw_child.log",
+            "D:\\文档\\工作日志\\2025-09-20.txt",
+            "D:\\文档\\临时目录\\2025-09-20.txt",
+            "D:\\Tools\\DiskEye 磁盘监控\\etw_child.log",
             "经验总结2025-10-8.txt",
         };
 
         foreach (var original in originals)
         {
-            var corrupt = cp936.GetString(utf8.GetBytes(original));   // 当年被写坏的形态
-            Assert.NotEqual(original, corrupt);                       // 前提：确实变形了
+            var corrupt = Corrupt(original);                         // 当年被写坏的形态
+            Assert.NotEqual(original, corrupt);                      // 前提：确实变形了
             Assert.Equal(original, MojibakeRepair.TryRepair(corrupt));
         }
     }
 
     /// <summary>
-    /// 含私用区字符的样本（上轮修复脚本整条跳过的那批）必须能还原 —— 这是本次修复的主因。
-    /// 样本直接取自真实 events.db，未做任何人工改写。
+    /// 含私用区字符的样本（上轮修复脚本整条跳过的那批）必须能还原 —— 这是本次修复的主因：
+    /// 私用区字符只有 .NET 的 CP936 编码器认得，Python 的 `gbk` 编不回去，于是整行被放弃。
+    /// 乱码串硬编码在此（含 U+E1BC），原文是 `D:\文档\临时目录\2025-09-20.txt`。
     /// </summary>
     [Fact]
-    public void Repairs_RealRowWithPrivateUseCharacter()
+    public void Repairs_RowWithPrivateUseCharacter()
     {
-        var realCorrupt = "D:\\涓\uE043汉妗岄潰\\妗岄潰\\褰撳墠宸ヤ綔\\2025-9-20.txt";
-        Assert.Equal("D:\\个人桌面\\桌面\\当前工作\\2025-9-20.txt", MojibakeRepair.TryRepair(realCorrupt));
+        var corrupt = "D:\\\u93C2\u56E8\u3002\\\u6D93\u5B58\u6902\u9429\uE1BC\u7D8D\\2025-09-20.txt";
+
+        Assert.Contains('\uE1BC', corrupt);                          // 前提：确实含私用区字符
+        Assert.Equal("D:\\文档\\临时目录\\2025-09-20.txt", MojibakeRepair.TryRepair(corrupt));
     }
 
     /// <summary>
@@ -70,7 +81,7 @@ public class MojibakeRepairTests
     [Fact]
     public void RefusesStringsWhoseBytesWereAlreadyLost()
     {
-        var lossy = MojibakeRepair.TryRepair("D:\\tools\\0.mytools\\鏅鸿兘寰呭姙娓?鍗昞data\\webview\\");
+        var lossy = MojibakeRepair.TryRepair("D:\\Tools\\鏅鸿兘寰呭姙娓?鍗昞data\\webview\\");
         Assert.Null(lossy);
     }
 
@@ -78,15 +89,15 @@ public class MojibakeRepairTests
     [Fact]
     public void Repairs_PlainMojibakePath()
     {
-        var corrupt = "D:\\tools\\0.mytools\\DiskEye 纾佺洏鐩戞帶\\etw_child.log";
-        Assert.Equal("D:\\tools\\0.mytools\\DiskEye 磁盘监控\\etw_child.log",
+        var corrupt = "D:\\Tools\\DiskEye 纾佺洏鐩戞帶\\etw_child.log";
+        Assert.Equal("D:\\Tools\\DiskEye 磁盘监控\\etw_child.log",
             MojibakeRepair.TryRepair(corrupt));
     }
 
     /// <summary>健康中文绝不能被碰 —— 这是自愈功能最危险的失败模式。</summary>
     [Theory]
-    [InlineData("D:\\tools\\0.mytools\\DiskEye 磁盘监控\\etw_child.log")]
-    [InlineData("D:\\个人桌面\\桌面\\当前工作\\2025-9-20.txt")]
+    [InlineData("D:\\Tools\\DiskEye 磁盘监控\\etw_child.log")]
+    [InlineData("D:\\文档\\工作日志\\2025-09-20.txt")]
     [InlineData("智能待办清单.exe")]
     [InlineData("DiskEye 磁盘监控")]
     [InlineData("C:\\Program Files\\WindowsApps\\Notepad\\Notepad.exe")]
@@ -102,7 +113,7 @@ public class MojibakeRepairTests
     [Fact]
     public void Repair_IsIdempotent()
     {
-        var once = MojibakeRepair.TryRepair("D:\\涓\uE043汉妗岄潰\\妗岄潰\\褰撳墠宸ヤ綔\\2025-9-20.txt");
+        var once = MojibakeRepair.TryRepair(Corrupt("D:\\文档\\临时目录\\2025-09-20.txt"));
         Assert.NotNull(once);
         Assert.Null(MojibakeRepair.TryRepair(once));
     }
@@ -111,6 +122,6 @@ public class MojibakeRepairTests
     [Fact]
     public void AsciiFastPath_ReturnsNull()
     {
-        Assert.Null(MojibakeRepair.TryRepair("D:\\project\\toolproject\\jingyanjilei\\projects\\disk-eye\\README.md"));
+        Assert.Null(MojibakeRepair.TryRepair("D:\\src\\disk-eye\\README.md"));
     }
 }

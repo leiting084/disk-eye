@@ -7,7 +7,7 @@ namespace DiskEye.Storage;
 ///
 /// 背景：V0.9.15 及更早，ETW 子进程用 UTF-8 写 stdout，主进程却按 Console.OutputEncoding
 /// （中文系统 = CP936）解码，于是所有非 ASCII 路径都被"UTF-8 字节 → 按 GBK 解读"污染后落库：
-///   D:\tools\0.mytools\DiskEye 磁盘监控  →  D:\tools\0.mytools\DiskEye 纾佺洏鐩戞帶
+///   D:\Tools\DiskEye 磁盘监控  →  D:\Tools\DiskEye 纾佺洏鐩戞帶
 /// V0.9.16 修好了写入端（FrameProtocol.StreamEncoding），但**库里已有的脏数据不会自己变干净** ——
 /// 用户在界面上看到的乱码列表就是这些历史行。本类负责把它们还原。
 ///

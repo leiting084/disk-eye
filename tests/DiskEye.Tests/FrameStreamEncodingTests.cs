@@ -10,14 +10,14 @@ namespace DiskEye.Tests;
 /// 历史 bug：子进程用 UTF8Encoding(false) 写 stdout，主进程创建子进程时**没有**设
 /// StandardOutputEncoding，.NET 便退回 Console.OutputEncoding —— 中文系统是 CP936(GBK)，
 /// 于是所有走管道的非 ASCII 路径被按 GBK 解读：
-///   D:\tools\0.mytools\DiskEye 磁盘监控\etw_child.log
-/// → D:\tools\0.mytools\DiskEye 纾佺洏鐩戞帶\etw_child.log
+///   D:\Tools\DiskEye 磁盘监控\etw_child.log
+/// → D:\Tools\DiskEye 纾佺洏鐩戞帶\etw_child.log
 /// 只有 write_bytes 表（WR 帧）中招，events 表未中招是因为那些行来自主进程自己的
 /// FileSystemWatcher，不经管道。所以这类 bug 只会在「路径含中文」的机器上暴露。
 /// </summary>
 public class FrameStreamEncodingTests
 {
-    private const string CnDir = @"D:\tools\0.mytools\DiskEye 磁盘监控";
+    private const string CnDir = @"D:\Tools\DiskEye 磁盘监控";
 
     [Fact]
     public void CreateChildStartInfo_SetsExplicitOutputEncoding()
@@ -48,7 +48,7 @@ public class FrameStreamEncodingTests
             FrameProtocol.Cleanup(4321, CnDir + @"\startup.log"),
             FrameProtocol.Name(4321, "DiskEye.exe", CnDir + @"\DiskEye.exe"),
             FrameProtocol.Rename(4321, @"D:\临时\旧名.txt"),
-            FrameProtocol.Open(99, "node.exe", true, @"D:\tools\0.mytools\智能待办清单"),
+            FrameProtocol.Open(99, "node.exe", true, @"D:\Tools\智能待办清单"),
         };
 
         using var pipe = new MemoryStream();
@@ -77,7 +77,7 @@ public class FrameStreamEncodingTests
         Assert.Equal(CnDir + @"\startup.log", got[2].Path);
         Assert.Equal(CnDir + @"\DiskEye.exe", got[3].ExePath);
         Assert.Equal(@"D:\临时\旧名.txt", got[4].OldPath);
-        Assert.Equal(@"D:\tools\0.mytools\智能待办清单", got[5].Path);
+        Assert.Equal(@"D:\Tools\智能待办清单", got[5].Path);
         Assert.True(got[5].IsDir);
     }
 

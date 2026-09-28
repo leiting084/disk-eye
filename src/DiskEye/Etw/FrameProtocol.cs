@@ -16,7 +16,7 @@ internal static class FrameProtocol
     /// 主从管道编解码（无 BOM UTF-8）。写端与读端**必须**用同一个实例：
     /// 子进程用它写 stdout；主进程必须把它赋给 ProcessStartInfo.StandardOutputEncoding。
     /// 不赋值时 .NET 会退回 Console.OutputEncoding——中文系统是 CP936(GBK)，
-    /// 于是「D:\tools\0.mytools\DiskEye 磁盘监控」被解成「D:\tools\0.mytools\DiskEye 纾佺洏鐩戞帶」。
+    /// 于是「D:\Tools\DiskEye 磁盘监控」被解成「D:\Tools\DiskEye 纾佺洏鐩戞帶」。
     /// </summary>
     public static readonly Encoding StreamEncoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
 
